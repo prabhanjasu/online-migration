@@ -12,8 +12,8 @@ app = Flask(__name__)
 app.secret_key = "l1a2n3e4"
 ALLOWED_EXTENSIONS = {'csv', 'txt', 'xls','xlsx'}
 #local uri
-DATABSE_URI = 'postgresql://postgres:postgres1@localhost:5432/Lanecqgh'
-#DATABSE_URI = 'postgresql://Lanepostgres:Lanepostgres!2022@35.200.170.53:5432/Lanecqgh'
+#DATABSE_URI = 'postgresql://postgres:postgres1@localhost:5432/Lanecqgh'
+DATABSE_URI = 'postgresql://Lanepostgres:Lanepostgres!2022@35.200.170.53:5432/Lanecqgh'
 
 
 

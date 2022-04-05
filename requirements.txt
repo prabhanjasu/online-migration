@@ -6,9 +6,9 @@ psycopg2
 psycopg2-binary
 SQLAlchemy
 pandas
-os
-date
-exc
+#os
+#date
+#exc
 gunicorn
 gunicorn==20.0.4
 

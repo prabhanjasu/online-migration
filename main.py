@@ -1,25 +1,19 @@
-import json
 from flask import Flask, render_template, request, redirect, url_for, flash,send_file
 from flask_sqlalchemy import SQLAlchemy
 import pandas as pd
 import os
 import csv
+import os
+from datetime import date
+import socket 
+from sqlalchemy import exc  
 
 app = Flask(__name__)
-app.secret_key = "dadasdasd"
+app.secret_key = "l1a2n3e4"
 ALLOWED_EXTENSIONS = {'csv', 'txt', 'xls','xlsx'}
-POSTGRES = {
-    'user': 'Lanepostgres',
-    'pw': 'Lanepostgres!2022',
-    'db': 'Lanecqgh',
-    'host': '35.200.170.53',
-    'port': '5432',
-}
-#DDATABSE_URI = 'postgresql://%(user)s:\%(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
-#DATABSE_URI='mysql+mysqlconnector://{user}:{password}@{server}/{database}'.format(user='root', password='root', server='localhost:3306', database='testdatabase')
 #local uri
-#DATABSE_URI = 'postgresql://postgres:postgres1@localhost:5432/Lanecqgh'
-DATABSE_URI = 'postgresql://Lanepostgres:Lanepostgres!2022@35.200.170.53:5432/Lanecqgh'
+DATABSE_URI = 'postgresql://postgres:postgres1@localhost:5432/Lanecqgh'
+#DATABSE_URI = 'postgresql://Lanepostgres:Lanepostgres!2022@35.200.170.53:5432/Lanecqgh'
 
 
 
@@ -47,6 +41,12 @@ class OnlineCustomer(db.Model):
 @app.route('/', methods=['GET', 'POST'], defaults={"page": 1}) 
 @app.route('/<int:page>', methods=['GET', 'POST'])
 def index(page=1):
+    hostname=socket.gethostname()   
+    IPAddr='12.222.22.221' #socket.gethostbyname(hostname)  
+    postgreSQL_select_Query = "select * from users where ipaddress = :search"
+    userresult = db.session.execute(postgreSQL_select_Query, {"search": IPAddr}).fetchone()
+    if userresult == None:
+      return render_template("error.html")
     page = page
     pages = 500
     customerList = OnlineCustomer.query.order_by(OnlineCustomer.Id.asc()).paginate(page, per_page=pages)
@@ -87,26 +87,63 @@ def search_link():
       data = pd.read_csv (csv_file)   
       df = pd.DataFrame(data) 
       data1 = []
+      
       for row in df.itertuples():
          email = row.EMAIL
-         
          customerList = OnlineCustomer.query.filter(OnlineCustomer.Email==email).all() #() OR: from sqlalchemy import or_  filter(or_(User.name == 'ednalan', User.name == 'caite'))
          data1.append(customerList)
-         
+         #print("file creating...")
       x = x+1
       for rbc in data1  :
           for j in rbc: # inner loop
              data = {'Name':[j.Name],'Email':[j.Email],'Phone':[j.Phone],'Address':[j.Address]} 
              df = pd.DataFrame(data)
              fname="search_"+str(x)+".csv"
+             #print("file csv creating...")
              df.to_csv(fname,mode="a",index=False,header=None)
+
       result = send_file(fname,attachment_filename='search_result.csv', mimetype='text/csv',as_attachment=True)
       print("file sent, deleting...")
       os.remove(fname)
       return result
-      
+     
   
    return render_template("bulksearch.html")
- 
+class Users(db.Model):
+   __tablename__ = 'users'
+   id = db.Column(db.Integer, primary_key = True,unique=True)
+   ipaddress = db.Column(db.String(100))
+   datetime = db.Column(db.DateTime)
+   #CHECK_INV_RE = re.compile('[^a-zA-Z0-9_-]')
+   @app.route('/admin')
+   @app.route('/admin', methods=['GET', 'POST'], defaults={"page": 1}) 
+   @app.route('/admin/<int:page>', methods=['GET', 'POST'])
+   def admin(page=1):
+      page = page
+      pages = 2
+      users_ip = Users.query.order_by(Users.id.desc()).paginate(page, per_page=pages)
+      return render_template("admin.html",users_ip=users_ip)
+   @app.route('/admin', methods=['POST'])
+   def admin_post(page=1):
+      text = request.form['text']
+      create_user = Users(ipaddress=text, datetime=date.today())
+      try:
+         userresult = db.session.add(create_user)
+         userresult1 = db.session.commit()
+         flash("Data Inserted successfully.")
+      except exc.SQLAlchemyError as e:
+         print(e)
+         print("ERROR : ", str(e))
+         flash("Invalid Ip Address.")
+      return redirect(url_for("admin"))
+   @app.route("/delete/<id>/", methods=["GET", "POST"])
+   def delete(id):
+      my_data = Users.query.get(id)
+      db.session.delete(my_data)
+      db.session.commit()
+      flash("Data deleted successfully.")
+      return redirect(url_for("admin"))
+
+  
 if __name__ == '__main__':
     app.run(debug=True,host="0.0.0.0",port=5000)

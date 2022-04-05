@@ -42,7 +42,7 @@ class OnlineCustomer(db.Model):
 @app.route('/<int:page>', methods=['GET', 'POST'])
 def index(page=1):
     hostname=socket.gethostname()   
-    IPAddr='12.222.22.221' #socket.gethostbyname(hostname)  
+    IPAddr=socket.gethostbyname(hostname)  
     postgreSQL_select_Query = "select * from users where ipaddress = :search"
     userresult = db.session.execute(postgreSQL_select_Query, {"search": IPAddr}).fetchone()
     if userresult == None:

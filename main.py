@@ -42,7 +42,7 @@ class OnlineCustomer(db.Model):
 @app.route('/<int:page>', methods=['GET', 'POST'])
 def index(page=1):
     hostname=socket.gethostname()   
-    IPAddr=socket.gethostbyname(hostname)  
+    IPAddr= socket.gethostbyname(hostname)  
     postgreSQL_select_Query = "select * from users where ipaddress = :search"
     userresult = db.session.execute(postgreSQL_select_Query, {"search": IPAddr}).fetchone()
     if userresult == None:
@@ -89,9 +89,14 @@ def search_link():
       data1 = []
       
       for row in df.itertuples():
-         email = row.EMAIL
-         customerList = OnlineCustomer.query.filter(OnlineCustomer.Email==email).all() #() OR: from sqlalchemy import or_  filter(or_(User.name == 'ednalan', User.name == 'caite'))
-         data1.append(customerList)
+         if(hasattr(row,'EMAIL')):
+            email = row.EMAIL
+            customerList = OnlineCustomer.query.filter(OnlineCustomer.Email==email).all() #() OR: from sqlalchemy import or_  filter(or_(User.name == 'ednalan', User.name == 'caite'))
+            data1.append(customerList)
+         else:
+            phone =str(row.Phone)
+            customerList = OnlineCustomer.query.filter(OnlineCustomer.Phone==phone).all() #() OR: from sqlalchemy import or_  filter(or_(User.name == 'ednalan', User.name == 'caite'))
+            data1.append(customerList)
          #print("file creating...")
       x = x+1
       for rbc in data1  :
@@ -120,7 +125,7 @@ class Users(db.Model):
    @app.route('/admin/<int:page>', methods=['GET', 'POST'])
    def admin(page=1):
       page = page
-      pages = 2
+      pages = 200
       users_ip = Users.query.order_by(Users.id.desc()).paginate(page, per_page=pages)
       return render_template("admin.html",users_ip=users_ip)
    @app.route('/admin', methods=['POST'])

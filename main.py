@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash,send_file
+from flask import Flask, render_template, request, redirect, url_for, flash,send_file,jsonify
 from flask_sqlalchemy import SQLAlchemy
 import pandas as pd
 import os
@@ -7,6 +7,8 @@ import os
 from datetime import date
 import socket 
 from sqlalchemy import exc  
+from netifaces import interfaces, ifaddresses, AF_INET
+
 
 app = Flask(__name__)
 app.secret_key = "l1a2n3e4"
@@ -15,7 +17,12 @@ ALLOWED_EXTENSIONS = {'csv', 'txt', 'xls','xlsx'}
 #DATABSE_URI = 'postgresql://postgres:postgres1@localhost:5432/Lanecqgh'
 DATABSE_URI = 'postgresql://Lanepostgres:Lanepostgres!2022@35.200.170.53:5432/Lanecqgh'
 
-
+for interface in interfaces():
+   if AF_INET in ifaddresses(interface):
+      for link in ifaddresses(interface)[AF_INET]:
+         if(link['addr']) != "127.0.0.1":
+            IPAddr = link['addr']
+print(IPAddr)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABSE_URI 
 
@@ -41,8 +48,11 @@ class OnlineCustomer(db.Model):
 @app.route('/', methods=['GET', 'POST'], defaults={"page": 1}) 
 @app.route('/<int:page>', methods=['GET', 'POST'])
 def index(page=1):
-    hostname=socket.gethostname()   
-    IPAddr= socket.gethostbyname(hostname)  
+    for interface in interfaces():
+        if AF_INET in ifaddresses(interface):
+             for link in ifaddresses(interface)[AF_INET]:
+               if(link['addr']) != "127.0.0.1":
+                  IPAddr = link['addr']
     postgreSQL_select_Query = "select * from users where ipaddress = :search"
     userresult = db.session.execute(postgreSQL_select_Query, {"search": IPAddr}).fetchone()
     if userresult == None:
@@ -108,7 +118,7 @@ def search_link():
              df.to_csv(fname,mode="a",index=False,header=None)
 
       result = send_file(fname,attachment_filename='search_result.csv', mimetype='text/csv',as_attachment=True)
-      print("file sent, deleting...")
+      #print("file sent, deleting...")
       os.remove(fname)
       return result
      

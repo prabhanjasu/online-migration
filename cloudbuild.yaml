@@ -1,5 +1,6 @@
-steps:
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'gcr.io/robotic-shelter-318710/onlinecustomer', '.']
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'gcr.io/robotic-shelter-318710/onlinecustomer']
+runtime: python
+env: flex
+entrypoint: gunicorn -b :$PORT main:app
+
+runtime_config:
+  python_version: 3

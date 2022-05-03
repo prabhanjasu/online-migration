@@ -11,4 +11,3 @@ netifaces
 #date
 #exc
 gunicorn
-gunicorn==20.0.4

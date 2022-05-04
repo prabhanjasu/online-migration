@@ -53,7 +53,7 @@ def index(page=1):
     postgreSQL_select_Query = "select * from users where ipaddress = :search"
     userresult = db.session.execute(postgreSQL_select_Query, {"search": IPAddr}).fetchone()
     if userresult == None:
-      return render_template("error.html",IPAddr=IPAddr)
+      return render_template("error.html")
     page = page
     pages = 500
     customerList = OnlineCustomer.query.order_by(OnlineCustomer.Id.asc()).paginate(page, per_page=pages)

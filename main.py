@@ -49,11 +49,11 @@ def index(page=1):
              for link in ifaddresses(interface)[AF_INET]:
                if(link['addr']) != "127.0.0.1":
                   IPAddr = link['addr']
-                      
+                     
     postgreSQL_select_Query = "select * from users where ipaddress = :search"
     userresult = db.session.execute(postgreSQL_select_Query, {"search": IPAddr}).fetchone()
     if userresult == None:
-      return render_template("error.html")
+      return render_template("error.html",IPAddr=IPAddr)
     page = page
     pages = 500
     customerList = OnlineCustomer.query.order_by(OnlineCustomer.Id.asc()).paginate(page, per_page=pages)
@@ -165,4 +165,4 @@ class Users(db.Model):
 
   
 if __name__ == '__main__':
-    app.run(debug=True,host="0.0.0.0",port=5006)
+    app.run(debug=True,host="0.0.0.0",port=5007)

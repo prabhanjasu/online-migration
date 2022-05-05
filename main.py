@@ -6,6 +6,8 @@ import os
 from datetime import date
 from sqlalchemy import exc 
 from sqlalchemy import create_engine
+import socket
+
 
 from netifaces import interfaces, ifaddresses, AF_INET
 
@@ -43,7 +45,9 @@ class OnlineCustomer(db.Model):
 @app.route('/<int:page>', methods=['GET', 'POST'])
 
 def index(page=1):
-    
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    res = (s.getsockname()[0])
     for interface in interfaces():
         if AF_INET in ifaddresses(interface):
              for link in ifaddresses(interface)[AF_INET]:
@@ -53,7 +57,7 @@ def index(page=1):
     postgreSQL_select_Query = "select * from users where ipaddress = :search"
     userresult = db.session.execute(postgreSQL_select_Query, {"search": IPAddr}).fetchone()
     if userresult == None:
-      return render_template("error.html")
+      return render_template("error.html",res=res)
     page = page
     pages = 500
     customerList = OnlineCustomer.query.order_by(OnlineCustomer.Id.asc()).paginate(page, per_page=pages)
@@ -165,4 +169,4 @@ class Users(db.Model):
 
   
 if __name__ == '__main__':
-    app.run(debug=True,host="0.0.0.0",port=5007)
+    app.run(debug=True,host="0.0.0.0",port=5004)

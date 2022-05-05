@@ -45,9 +45,7 @@ class OnlineCustomer(db.Model):
 @app.route('/<int:page>', methods=['GET', 'POST'])
 
 def index(page=1):
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(("8.8.8.8", 80))
-    res = (s.getsockname()[0])
+    
     for interface in interfaces():
         if AF_INET in ifaddresses(interface):
              for link in ifaddresses(interface)[AF_INET]:

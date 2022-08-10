@@ -1,0 +1,40 @@
+{% extends 'header.html' %}
+
+{% block body %}
+
+<div class="container">
+    <div class="row">
+     <div class="col-8">
+      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class="flashes">
+           {% for message in messages %}
+            <div class="message_flash" style="color:red; ">{{ message }}</div>
+           {% endfor %}
+       </ul>
+     {% endif %}
+    {% endwith %}
+    <div style="color:green;">Use "EMAIL" header as label in email csv file and "PHONE" header as label in phone csv file </div>
+        <h1>Upload your CSV file</h1>
+    <form method="POST" action="" enctype="multipart/form-data">
+      <p><input type="file" name="file" id="file"></p>
+      <p><input type="submit" value="Submit"></p>
+    </form>
+    </div>
+    
+   </div> 
+</div>
+  
+<script>
+  $(function() {
+// setTimeout() function will be fired after page is loaded
+// it will wait for 5 sec. and then will fire
+// $(".message_flash").hide() function
+setTimeout(function() {
+    $(".message_flash").hide('blind', {}, 5)
+}, 5000);
+})   
+  </script> 
+
+
+{% endblock %}

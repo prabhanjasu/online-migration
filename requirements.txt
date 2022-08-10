@@ -1,0 +1,13 @@
+# flask 
+flask
+flask_sqlalchemy
+
+psycopg2
+psycopg2-binary
+SQLAlchemy
+pandas
+netifaces
+#os
+#date
+#exc
+gunicorn

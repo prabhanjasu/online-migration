@@ -7,6 +7,7 @@ from datetime import date
 from sqlalchemy import exc 
 from sqlalchemy import create_engine
 import socket
+import requests
 
 
 from netifaces import interfaces, ifaddresses, AF_INET
@@ -46,12 +47,15 @@ class OnlineCustomer(db.Model):
 
 def index(page=1):
     
+    public_ip = requests.get("http://wtfismyip.com/text").text
+    print(public_ip)
     for interface in interfaces():
         if AF_INET in ifaddresses(interface):
              for link in ifaddresses(interface)[AF_INET]:
                if(link['addr']) != "127.0.0.1":
                   IPAddr = link['addr']
-                                 
+    print('ipaddress')
+    print(IPAddr)
     postgreSQL_select_Query = "select * from users where ipaddress = :search"
     userresult = db.session.execute(postgreSQL_select_Query, {"search": IPAddr}).fetchone()
     if userresult == None:

@@ -14,8 +14,8 @@ app = Flask(__name__)
 app.secret_key = "l1a2n3e4"
 ALLOWED_EXTENSIONS = {'csv', 'txt', 'xls','xlsx'}
 #local uri
-DATABSE_URI = 'postgresql://postgres:postgres1@localhost:5432/Lanecqgh'
-#DATABSE_URI = 'postgresql://Lanepostgres:Lanepostgres!2022@35.200.170.53:5432/Lanecqgh'
+#DATABSE_URI = 'postgresql://postgres:postgres1@localhost:5432/Lanecqgh'
+DATABSE_URI = 'postgresql://Lanepostgres:Lanepostgres!2022@35.200.170.53:5432/Lanecqgh'
 
 
 
@@ -35,8 +35,8 @@ class OnlineCustomer(db.Model):
     DateCreated = db.Column(db.String(100))
 
 
-@app.route('/home', methods=['GET', 'POST']) 
-@app.route('/home',methods=['GET',  'POST'])              
+@app.route('/', methods=['GET', 'POST']) 
+@app.route('/',methods=['GET',  'POST'])              
 def home():
    if (request.method == 'POST') and len(request.form["ipaddress1"]):
         IPAddr = request.form["ipaddress1"]
@@ -45,9 +45,9 @@ def home():
         return redirect(url_for("index"))
    return render_template("ipaddress.html")
 
-@app.route('/')
-@app.route('/', methods=['GET', 'POST'], defaults={"page": 1}) 
-@app.route('/<int:page>', methods=['GET', 'POST'])
+@app.route('/index')
+@app.route('/index', methods=['GET', 'POST'], defaults={"page": 1}) 
+@app.route('/index/<int:page>', methods=['GET', 'POST'])
 
 def index(page=1):
  if 'loggedin' in session:
@@ -57,7 +57,6 @@ def index(page=1):
    if userresult == None:
        return render_template("error.html")
    else:
-    
     page = page
     pages = 500
     customerList = OnlineCustomer.query.order_by(OnlineCustomer.Id.asc()).paginate(page, per_page=pages)
@@ -171,10 +170,14 @@ class Users(db.Model):
       pages = 200
       users_ip = Users.query.order_by(Users.id.desc()).paginate(page, per_page=pages)
       return render_template("admin.html",users_ip=users_ip)
-   @app.route('/admin', methods=['POST'])
+      
+   @app.route('/admin_post', methods=['POST'])
    def admin_post(page=1):
+      print("ddd")
       text = request.form['text']
       create_user = Users(ipaddress=text, datetime=date.today())
+      print("tester")
+      print(create_user)
       try:
          userresult = db.session.add(create_user)
          userresult1 = db.session.commit()

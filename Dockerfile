@@ -1,7 +1,7 @@
 # Use the official lightweight Python image.
 # https://hub.docker.com/_/python
-FROM python:3.10-slim
-
+FROM python:3
+RUN apt-get -y update && apt-get install -y python
 # Allow statements and log messages to immediately appear in the Knative logs
 ENV PYTHONUNBUFFERED True
 
@@ -18,4 +18,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # For environments with multiple CPU cores, increase the number of workers
 # to be equal to the cores available.
 # Timeout is set to 0 to disable the timeouts of the workers to allow Cloud Run to handle instance scaling.
-CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 main:app
+#CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 main:app
+CMD python3 main.py

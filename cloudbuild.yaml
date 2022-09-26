@@ -1,0 +1,5 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'gcr.io/robotic-shelter-318710/online-migration', '.']
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'gcr.io/robotic-shelter-318710/online-migration']
